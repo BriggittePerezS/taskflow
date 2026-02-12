@@ -2,44 +2,90 @@ import { useState, useEffect } from 'react';
 import type { Task, Priority } from '../types/index';
 
 export const useTasks = () => {
-  // Inicializamos intentando leer de LocalStorage directamente
+  // 1. Inicialización inteligente con LocalStorage
   const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('taskflow_enterprise_v3');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('taskflow_enterprise_v3');
+      // Si hay datos los parseamos, si no, empezamos con una lista vacía
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error("Error al recuperar datos de LocalStorage:", error);
+      return [];
+    }
   });
 
-  // Guardar cada vez que la lista de tareas cambie
+  // 2. Persistencia: Guardar en LocalStorage cada vez que cambie la lista de tareas
   useEffect(() => {
     localStorage.setItem('taskflow_enterprise_v3', JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (title: string, description: string, priority: Priority) => {
+  /**
+   * 3. Función para añadir una nueva tarea con todos los campos Enterprise.
+   * Esta firma es única porque separa la metadata del contenido.
+   */
+  const addTask = (
+    title: string, 
+    description: string, 
+    priority: Priority, 
+    startDate: string, 
+    endDate: string, 
+    assignee: string
+  ) => {
     const newTask: Task = {
-      id: crypto.randomUUID(),
+      id: crypto.randomUUID(), // Genera un ID único e irrepetible
       title,
       description,
       priority,
-      status: 'pending',
+      status: 'pendiente', // Estado inicial por defecto
       createdAt: new Date().toLocaleDateString(),
+      startDate,
+      endDate,
+      assignee
     };
-    setTasks([newTask, ...tasks]);
+    
+    // Añadimos la nueva tarea al principio de la lista
+    setTasks(prev => [newTask, ...prev]);
   };
 
-  const updateTask = (id: string, newTitle: string, newDesc: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, title: newTitle, description: newDesc } : t));
+  /**
+   * 4. Actualización de Estado (Ciclo de vida del proyecto)
+   */
+  const updateStatus = (id: string, status: Task['status']) => {
+    setTasks(prev => prev.map(t => 
+      t.id === id ? { ...t, status } : t
+    ));
   };
 
+  /**
+   * 5. Edición Flexible: Permite actualizar cualquier campo (título, fechas, etc.)
+   * Usamos Partial<Task> para poder enviar solo lo que queremos cambiar.
+   */
+  const updateTask = (id: string, updatedFields: Partial<Task>) => {
+    setTasks(prev => prev.map(t => 
+      t.id === id ? { ...t, ...updatedFields } : t
+    ));
+  };
+
+  /**
+   * 6. Eliminación de registros
+   */
   const deleteTask = (id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
   };
 
-  const updateStatus = (id: string, status: Task['status']) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, status } : t));
-  };
-
+  /**
+   * 7. Mantenimiento: Limpiar proyectos finalizados
+   */
   const clearCompleted = () => {
-    setTasks(prev => prev.filter(t => t.status !== 'completed'));
+    setTasks(prev => prev.filter(t => t.status !== 'completada'));
   };
 
-  return { tasks, addTask, deleteTask, updateStatus, updateTask, clearCompleted };
+  return { 
+    tasks, 
+    addTask, 
+    deleteTask, 
+    updateStatus, 
+    updateTask, 
+    clearCompleted 
+  };
 };
