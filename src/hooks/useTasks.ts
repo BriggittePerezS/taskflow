@@ -1,90 +1,45 @@
-import { useEffect, useState } from "react";
-import type { Task } from "../types/task";
+import { useState, useEffect } from 'react';
+import type { Task, Priority } from '../types/index';
 
-const STORAGE_KEY = "tasks";
-
-function getDefaultTask(title: string): Task {
-  const today = new Date().toISOString().split("T")[0];
-
-  return {
-    id: Date.now().toString(),
-    title,
-
-    assignee: "Sin asignar",
-    startDate: today,
-    endDate: today,
-
-    status: "pending",
-    priority: "medium",
-
-    // 👈 compatibilidad total
-    completed: false,
-  };
-}
-
-export function useTasks() {
+export const useTasks = () => {
+  // Inicializamos intentando leer de LocalStorage directamente
   const [tasks, setTasks] = useState<Task[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-
-    try {
-      const parsed: Task[] = JSON.parse(stored);
-
-      // 🛡️ Normalizar tareas viejas
-      return parsed.map(task => ({
-        ...getDefaultTask(task.title),
-        ...task,
-        completed: task.completed ?? false,
-        status: task.completed ? "completed" : "pending",
-      }));
-    } catch {
-      return [];
-    }
+    const saved = localStorage.getItem('taskflow_enterprise_v3');
+    return saved ? JSON.parse(saved) : [];
   });
 
+  // Guardar cada vez que la lista de tareas cambie
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    localStorage.setItem('taskflow_enterprise_v3', JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (title: string) => {
-    if (!title.trim()) return;
-    setTasks(prev => [...prev, getDefaultTask(title)]);
+  const addTask = (title: string, description: string, priority: Priority) => {
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      title,
+      description,
+      priority,
+      status: 'pending',
+      createdAt: new Date().toLocaleDateString(),
+    };
+    setTasks([newTask, ...tasks]);
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(prev =>
-      prev.map(task =>
-        task.id === id
-          ? {
-              ...task,
-              completed: !task.completed,
-              status: task.completed ? "pending" : "completed",
-            }
-          : task
-      )
-    );
+  const updateTask = (id: string, newTitle: string, newDesc: string) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, title: newTitle, description: newDesc } : t));
   };
-
- const updateTask = (id: string, field: string, value: string) => {
-  setTasks(prev =>
-    prev.map(task =>
-      task.id === id
-        ? { ...task, [field]: value }
-        : task
-    )
-  );
-};
-
 
   const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
+    setTasks(prev => prev.filter(t => t.id !== id));
   };
 
-  return {
-    tasks,
-    addTask,
-    toggleTask,
-    updateTask,
-    deleteTask,
+  const updateStatus = (id: string, status: Task['status']) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, status } : t));
   };
-}
+
+  const clearCompleted = () => {
+    setTasks(prev => prev.filter(t => t.status !== 'completed'));
+  };
+
+  return { tasks, addTask, deleteTask, updateStatus, updateTask, clearCompleted };
+};

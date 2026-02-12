@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: #030712; /* El mismo negro profundo del portfolio */
+  color: #f3f4f6;
+  min-height: 100vh;
+  /* Gradiente sutil de fondo para dar profundidad */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.1) 0, transparent 50%), 
+    radial-gradient(at 100% 100%, rgba(45, 212, 191, 0.1) 0, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Personalización de los inputs para que se vean pro */
+input, textarea {
+  outline: none;
+}
+
+/* Estilo de la barra de desplazamiento (Scrollbar) Aqua */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #14b8a6;
+  border-radius: 10px;
+}
+
+/* Animación suave para los cambios de estado de las tareas */
+.task-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.task-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}

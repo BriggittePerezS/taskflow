@@ -13,7 +13,7 @@
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/react": "^6.1.20",
     "@tailwindcss/vite": "^4.1.18",
-    "framer-motion": "^12.28.1",
+    "framer-motion": "^12.34.0",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",
     "react-day-picker": "^9.13.0",
