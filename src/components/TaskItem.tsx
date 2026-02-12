@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trash2, User, Calendar, ArrowRight, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Trash2, User, Calendar, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { Task } from '../types/index';
 
 interface Props {
