@@ -110,7 +110,7 @@ function App() {
                     onClick={clearCompleted}
                     className="flex items-center gap-2 text-[10px] font-black text-red-400/80 hover:text-red-400 transition-colors uppercase tracking-[0.15em]"
                   >
-                    <Trash2 size={12} /> Purgar Finalizados
+                    <Trash2 size={12} /> Limpiar Finalizados
                   </button>
                 </div>
               </div>
